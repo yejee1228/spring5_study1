@@ -23,6 +23,7 @@ app = (()=>{
 		setContentView()
 	}
 	let setContentView=()=>{
+		$('#wrapper').css({"background-image" : "url(https://g-grafolio.pstatic.net/20191104_97/1572834605348Gz451_JPEG/13%28pc%29.jpg)"})
 		$('<div/>')
 		.css({height:'100px'})
 		.appendTo('#wrapper')

@@ -14,7 +14,7 @@
 <body>
 	<div id = "wrapper">
 	<script>
-	app.run('<%=application.getContextPath()%>');
+	app.run('${ctx}');
 	</script>
 	</div>
 </body>
