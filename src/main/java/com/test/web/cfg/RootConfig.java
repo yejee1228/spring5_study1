@@ -16,14 +16,14 @@ import com.zaxxer.hikari.HikariDataSource;
 @Configuration
 @ComponentScan(basePackages= {"com.test.web"})
 @Import({
-	 ServletConfig.class
+	 ServletConfig.class, MybatisConfig.class
 })
 public class RootConfig {
 	@Bean
 	public DataSource dataSource() {
 	  DriverManagerDataSource dataSource = new DriverManagerDataSource();
 		    dataSource.setDriverClassName("org.mariadb.jdbc.Driver");
-		    dataSource.setUrl("jdbc:mariadb://172.168.0.245:3306/hanrabong?serverTimezone=UTC");
+		    dataSource.setUrl("jdbc:mariadb://172.168.0.89/hanrabong");
 		    dataSource.setUsername("hanrabong");
 		    dataSource.setPassword("hanrabong");
 		return dataSource;

@@ -6,14 +6,25 @@ app = (()=>{
 		_ = $.ctx()
 		js = $.js()
 	}
-	let onCreate =x=>$.getScript(x+'/resources/js/router.js', ()=>{
-		$.extend(new Session(x)),
-		setContentView()
-	})
-	let setContentView=()=>{
+	let run =x=>{
+		$.when(
+			$.getScript(x+'/resources/js/router.js',()=>{
+				$.extend(new Session(x))
+			}),
+			$.getScript(x+'/resources/js/pop.js')
+		).done(()=>{
+			onCreate()
+		}).fail(()=>{})
+	}
+	let onCreate=()=>{
 		init()
+		$(pop.view()).appendTo('#wrapper')
+		pop.open()
+		setContentView()
+	}
+	let setContentView=()=>{
 		$('<div/>')
-		.css({height:'150px'})
+		.css({height:'100px'})
 		.appendTo('#wrapper')
 		$('<table id = "tab"><tr></tr></table>')
 		.css({width:'90%',
@@ -32,7 +43,8 @@ app = (()=>{
 		.css({width:'80%',
 			height: '100%',
 			border: '1px solid #dddddd',
-			margin: '0 auto'
+			margin: '0 auto',
+			'vertical-align': 'top'
 		})
 		.appendTo('tr')
 		
@@ -59,12 +71,18 @@ app = (()=>{
 				case'NAVER':
 					$.getJSON(_+'/test/naver', d=>{
 						$('#right').empty()
+						$('<div/>',{id:'naverWord'}).appendTo('#right').css({
+							width: '800px',
+							height: '500px',
+							'margin': '100px auto',
+							'text-align':'center'
+						})
 						$.each(d,(i,j)=>{
 							$('<div><h2>'+j.word+'</h2><br/><h4>'+j.text+'</h4></div>')
-							.appendTo('#right')
-							.css({width:'49.5%',
+							.appendTo('#naverWord')
+							.css({width:'49%',
 								height: '50%',
-								border: '2px solid #dddddd',
+								border: '3px solid white',
 								margin: '0 auto',
 								'text-align':'center',
 								float : 'left',
@@ -77,14 +95,13 @@ app = (()=>{
 					$.getJSON(_+'/test/cgv', d=>{
 						$('#right').empty()
 						$.each(d,(i,j)=>{
-							$('<div><h2>'+j.seq+'위</h2></br>'+
+							$('<span><h2>'+j.seq+'위</h2></br>'+
 							'<img src='+j.img+'></br><h5>'+
 							j.title+'</br>'+
 							j.percent+'</br>'+
 							j.txtinfo+'</h5></br>'+
-							'</div>')
-							.css({width:'33%',
-								height: '33%',
+							'</span>')
+							.css({width:'19%',
 								border: '2px solid #dddddd',
 								margin: '0 auto',
 								'text-align':'center',
@@ -95,27 +112,101 @@ app = (()=>{
 					})
 					break;
 				case'BUGS':
-					
-					$.getJSON(_+'/test/bugs', d=>{
-						$('#right').empty()
-						$('<table id="bugs"></table>').appendTo('#right')
-						$.each(d,(i,j)=>{
-							$('<tr><td><img src='+j.img+'/></td><td>'+j.ranking+'위 </td><td>'+j.title+'</td><td>'+j.artist+'</td><td>'+j.album+'</td></tr>')
-							.appendTo('#bugs')
-							.css({width:'100%',
-								height: '50px',
-								border: '1px solid #dddddd',
-								margin: '0 auto',
-								'text-align':'center',
-								'background-color':'ghostwhite'})
-						})
-						
-					})
-					break;
+					bugs(0)
+					break
 				}
 			})
 		})
 		
 	}
-	return {onCreate}
+	let bugs=x=>{
+		$('#right').empty()
+		$.getJSON(_+'/test/bugs/page/'+ x, d=>{
+			let pager = d.pager
+			let list = d.list
+			$('<table id="bugs"><tr></tr></table>').appendTo('#right')
+			.css({width:'90%', height:'60%', margin:'0 auto'})
+			$.each([
+				'','순위','타이틀','아티스트','앨범명'
+			],(i,j)=>{
+				$('<th/>')
+				.html('<b>'+j+'</b>')
+				.appendTo('#bugs tr')
+				.css({height:'50px'})
+			})
+			$.each(list,(i,j)=>{
+				$('<tr><td style = "width: 50px"><img src='+j.img+'/></td><td style="width: 70px">'+j.ranking+'위 </td><td style="width: 45%">'+j.title+'</td><td>'+j.artist+'</td><td>'+j.album+'</td></tr>')
+				.appendTo('#bugs')
+				.css({width:'100%',
+					height: '50px',
+					border: '1px solid #dddddd',
+					margin: '0 auto',
+					'text-align':'center',
+					'background-color':'linen'})
+			})
+			$('<div/>')
+			.css({height:'50px'})
+			.appendTo('#right')
+			$('<div/>',{id:'page'}).appendTo('#right')
+			.css({margin:'0 auto', 'display': 'table'})
+			
+			if(pager.existPrev){
+				$('<div>◀</div>')
+				.css({
+				    width: '30px',
+				    height: '30px',
+				    margin: '0 auto',
+				    float: 'left',
+				    color : '#dddddd',
+				    'text-align': 'center',
+				    'font-size': 'larger'
+				})
+				.appendTo('#page')
+				.click(function(){
+					app.bugs(pager.prevBlock)
+				})
+				
+			}
+			let i = pager.startPage
+			for( ; i<=pager.endPage; i++){
+				$('<div></div>')
+				.text(i+1)
+				.css({
+				    width: '30px',
+				    height: '30px',
+				    'background-color': 'blanchedalmond',
+				    margin: '0px auto',
+				    'border-radius': '100%',
+				    float: 'left',
+				    'text-align': 'center',
+				    'font-size': 'larger',
+				    color : '#9e9e9ed9'
+				})
+				.appendTo("#page")
+				.click(function(){
+					
+					app.bugs($(this).text()-1)
+				})
+			}
+			if(pager.existNext){
+				$('<div>▶</div>')
+				.css({
+				    width: '30px',
+				    height: '30px',
+				    margin: '0 auto',
+				    float: 'left',
+				    color : '#dddddd',
+				    'text-align': 'center',
+				    'font-size': 'larger'
+				})
+				.appendTo('#page')
+				.click(function(){
+					app.bugs(pager.nextBlock)
+				})
+				
+			}
+			
+		})
+	}
+	return {run, bugs}
 })();

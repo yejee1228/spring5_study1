@@ -86,7 +86,6 @@ public class CrawlingProxy extends Proxy{
 			String url = "https://music.bugs.co.kr/chart" ;
 			
 			Document temp = Jsoup.connect(url).timeout(10 * 1000).get();
-			Elements ranking = temp.select("div.ranking");
 			Elements img = temp.select("a.thumbnail");
 			Elements artist = temp.select("p.artist");
 			Elements title= temp.select("p.title");
@@ -94,7 +93,7 @@ public class CrawlingProxy extends Proxy{
 			HashMap<String, String> map = null;
 			for(int i=0;i<title.size();i++) {
 				map=new HashMap<>();
-				map.put("ranking", ranking.get(i).select("strong").text());
+				map.put("ranking", string(i+1));
 				map.put("img", img.get(i).select("img").attr("src"));
 				map.put("artist", artist.get(i).text());
 				map.put("title", title.get(i).text());
